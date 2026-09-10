@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gas Charge</title>
+<style>
+body{margin:0;background:#e9eef5;font-family:Arial,sans-serif;color:#10233f}
+#app{max-width:430px;margin:auto;min-height:100vh;background:#f7f9fc}
+header{background:#06264d;color:#fff;padding:18px;text-align:center;font-weight:bold;font-size:20px}
+main{padding:18px}.intro{text-align:center;padding:15px 0 20px}.intro h1{font-size:28px;margin:8px}.intro p{color:#667085}
+.card{background:white;border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 10px #0001}
+button.model{width:100%;padding:16px;margin:7px 0;border:0;border-radius:12px;background:white;box-shadow:0 2px 8px #0001;text-align:left;font-size:16px;font-weight:bold;color:#06264d}
+button.model span{float:right;font-size:24px}.blue{color:#1976e8}.green{color:#15966f}.purple{color:#7b42c8}
+h2{font-size:19px;margin-top:0}h3{font-size:15px;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px 4px;border-bottom:1px solid #e6eaf0;text-align:left}th{color:#667085}td:last-child,th:last-child{text-align:right}
+input{width:62px;padding:8px;border:1px solid #aab7c9;border-radius:7px;text-align:center;font-size:15px}
+.total{margin-top:14px}.row{display:flex;justify-content:space-between;padding:7px 0}.grand{border-top:1px solid #dce2eb;margin-top:5px;padding-top:12px;font-size:21px;font-weight:bold}
+.btn{width:100%;border:0;border-radius:9px;padding:13px;color:#fff;font-weight:bold;font-size:15px;margin-top:10px}.bblue{background:#1976e8}.bgreen{background:#15966f}.bpurple{background:#7b42c8}
+.nav{display:flex;gap:8px;margin-bottom:12px}.nav button{flex:1;padding:11px;border:1px solid #ccd5e2;border-radius:8px;background:white}
+.small{font-size:12px;color:#667085}
+</style>
+
+<style>
+html, body {
+  background: #000 !important;
+  color: #fff !important;
+}
+body {
+  min-height: 100vh;
+}
+#app {
+  background: #000 !important;
+  color: #fff !important;
+}
+header {
+  background: #000 !important;
+  color: #fff !important;
+}
+.card {
+  background: #151515 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 10px #000 !important;
+}
+button.model {
+  background: #151515 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px #000 !important;
+}
+.nav button {
+  background: #151515 !important;
+  color: #fff !important;
+  border-color: #444 !important;
+}
+input {
+  background: #222 !important;
+  color: #fff !important;
+  border-color: #555 !important;
+}
+th {
+  color: #aaa !important;
+}
+td, th {
+  border-color: #333 !important;
+}
+.intro p, .small {
+  color: #aaa !important;
+}
+</style>
+</head>
+<body>
+<div id="app">
+<header>GAS CHARGE CALCULATOR</header>
+<main id="main">
+<div class="intro"><div style="font-size:48px">🔥</div><h1>Gas Charge</h1><p>Choose your configuration to automatically calculate the gas charge.</p></div>
+<button class="model blue" onclick="showCalc('sky')">EPSYLON SKY R7 <span>›</span></button>
+<button class="model green" onclick="showCalc('celest')">CELEST <span>›</span></button>
+<button class="model purple" onclick="showCalc('echos')">EPSYLON ECHOS + <span>›</span></button>
+</main>
+</div>
+<script>
+const data={
+sky:{name:'EPSYLON SKY R7',c:'blue',b:'bblue',liq:[['3/8"',.046],['1/2"',.071],['5/8"',.138],['3/4"',.181],['7/8"',.282],['1"',.432]],gas:[['3/8"',.006],['1/2"',.009],['5/8"',.017],['3/4"',.022],['7/8"',.034],['1"',.053]]},
+celest:{name:'CELEST',c:'green',b:'bgreen',liq:[['1/2"',.074],['5/8"',.139],['3/4"',.182],['7/8"',.285],['1"1/8',.445],['1"3/8',.729]],gas:[['1/2"',.007],['5/8"',.014],['3/4"',.019],['7/8"',.029],['1"1/8',.045],['1"3/8',.074]]},
+echos:{name:'EPSYLON ECHOS +',c:'purple',b:'bpurple',liq:[['1/2"',.074],['5/8"',.139],['3/4"',.182],['7/8"',.285],['1"1/8',.445],['1"3/8',.729]],gas:[['1/2"',.007],['5/8"',.014],['3/4"',.019],['7/8"',.029],['1"1/8',.045],['1"3/8',.074]]}
+};
+let lens={}; Object.keys(data).forEach(k=>lens[k]={liq:Array(data[k].liq.length).fill(0),gas:Array(data[k].gas.length).fill(0)});
+
+function makeTable(k,type){
+ const d=data[k], rows=d[type], vals=lens[k][type];
+ return '<div class="card"><h3>'+ (type==='liq'?'Liquid pipes':'Gas pipes') +'</h3><table><tr><th>Diameter</th><th>Length (m)</th><th>kg/m</th></tr>'+
+ rows.map((r,i)=>'<tr><td>'+r[0]+'</td><td><input type="number" min="0" step="0.1" value="'+vals[i]+'" onchange="setv(\''+k+'\',\''+type+'\','+i+',this.value)"></td><td>'+r[1].toFixed(3)+'</td></tr>').join('')+'</table></div>';
+}
+function total(k,type){return data[k][type].reduce((s,r,i)=>s+r[1]*lens[k][type][i],0)}
+function showCalc(k){
+ const d=data[k];
+ document.getElementById('main').innerHTML='<div class="nav"><button onclick="home()">← Home</button><button onclick="resetAll(\''+k+'\')">↻ Reset</button></div><h2 class="'+d.c+'">'+d.name+'</h2><p class="small">Enter the pipe lengths in meters.</p>'+
+ makeTable(k,'liq')+makeTable(k,'gas')+'<div class="card total" id="total"></div>';
+ update(k);
+}
+function update(k){
+ const l=total(k,'liq'),g=total(k,'gas');
+ document.getElementById('total').innerHTML='<div class="row"><span>Liquid pipe charge</span><b>'+l.toFixed(3)+' kg</b></div><div class="row"><span>Gas pipe charge</span><b>'+g.toFixed(3)+' kg</b></div><div class="row grand '+data[k].c+'"><span>TOTAL</span><span>'+(l+g).toFixed(3)+' kg</span></div>';
+}
+function setv(k,t,i,v){let n=parseFloat(String(v).replace(',','.'));lens[k][t][i]=isNaN(n)||n<0?0:n;update(k)}
+function resetAll(k){lens[k].liq.fill(0);lens[k].gas.fill(0);showCalc(k)}
+function home(){location.reload()}
+</script>
+</body></html>
